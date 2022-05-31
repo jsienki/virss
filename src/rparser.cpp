@@ -64,6 +64,12 @@ feed newFeed(std::string url) {
         if (pChannel != NULL) {
             tinyxml2::XMLElement* pItem = pChannel -> FirstChildElement("item");
 
+            tinyxml2::XMLElement* pFeedTitle = pChannel -> FirstChildElement("title");
+
+            if (pFeedTitle != NULL) {
+                output.title = pFeedTitle -> GetText();
+            }
+
             while(pItem) {
                 rssObject newItem;
                 newItem.link = "TEST_LINK google.com";
