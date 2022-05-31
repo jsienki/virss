@@ -8,13 +8,14 @@
 #include "rparser.h"
 #include "cparser.h"
 
+WINDOW* feedWindow, articleWindow;
 MENU* feedMenu, articleMenu;
 ITEM** feedItems, articleItems;
 
 int feedChoices, articleChoices;
 
 void loadFeedMenu(std::vector<feed> mFeeds) {
-    int feedChoices = mFeeds.size();
+    feedChoices = mFeeds.size();
 
     feedItems = (ITEM **)calloc(feedChoices + 1, sizeof(ITEM *));                  
                                                                              
@@ -22,19 +23,37 @@ void loadFeedMenu(std::vector<feed> mFeeds) {
         char* temp = const_cast<char*>(mFeeds.at(i).title.c_str());
         feedItems[i] = new_item(temp, "");
     }
+
+    feedItems[feedChoices] = (ITEM*) NULL;
                                                                              
-    feedItems[feedChoices] = (ITEM *)NULL;
-                                                                             
-    feedMenu = new_menu((ITEM **)menuItems);
-    set_menu_format(feedMenu, LINES-4, 1);
+    feedMenu = new_menu((ITEM**) menuItems);
+    set_menu_win(feedMenu, feedWindow);
+    set_menu_format(feedMenu, (LINES - 4), 1);
     set_menu_mark(feedMenu, "");
     post_menu(feedMenu);
+
+    refresh();
 }
 
 void loadArticlesMenu(feed mFeed) {
-    articleItems = mFeed.articles.size();
+    articleChoices = mFeed.articles.size();
 
+    articleItems = (ITEM **)calloc(articleChoices + 1, sizeof(ITEM *));                  
 
+    for(int i = 0; i < articleChoices; i++) {
+        char* temp = const_cast<char*>(mFeed.articles.at(i).title.c_str());
+        articleItems[i] = new_item(temp, "");
+    }
+
+    articlesItem{articleChoices} = (ITEM*) NULL;
+
+    articleMenu = new_menu((ITEM**) articleItems);
+    set_menu_win(articleMenu, articleWindow);
+    set_menu_format(articleMenu, (LINES - 4), 1);
+    set_menu_mark(articleMenu, "");
+    post_menu(articleMenu);
+
+    refresh();
 }
 
 void killMenu(MENU* menu, ITEM** items, int choices) {
@@ -52,56 +71,47 @@ void cleanUp() {
     endwin();
 }
 
-int main() {
+void initialSetup() {
     setlocale(LC_CTYPE, "");
-
-	int c;				
 
 	initscr();
 	cbreak();
 	noecho();
     curs_set(0);
 	keypad(stdscr, TRUE);
-	
-    std::vector<feed> myFeeds = readFeeds();
-
-    // TODO: CREATE MENU FOR FEEDS SORTED BY NAME
-    // WHEN MENU SELECTED LOAD FEED
-
-	n_choices = myFeed.articles.size();
-
-	my_items = (ITEM **)calloc(n_choices + 1, sizeof(ITEM *));
-
-	for(int i = 0; i < n_choices; i++) {
-        char* temp = const_cast<char*>(myFeed.articles.at(i).title.c_str());
-	    my_items[i] = new_item(temp, "");
-    }
-
-	my_items[n_choices] = (ITEM *)NULL;
-
-	my_menu = new_menu((ITEM **)my_items);
-    set_menu_format(my_menu, LINES-4, 1);
-    set_menu_mark(my_menu, "");
-	post_menu(my_menu);
 
     std::string info = "virss v0.1";
-
 	mvaddstr(LINES - 2, 0, "'q' to Exit");
     mvaddstr(LINES - 2, COLS - (info.length()), const_cast<char*>(info.c_str()));
 
-	refresh();
+    feedWindow = newwin((LINES - 4), (COLS / 2), 0, (COLS / 2));
+    articleWindow = newwin((LINES - 4), (COLS / 2), 0, (COLS / 2));
 
-	while((c = getch()) != 'q')
-	{   switch(c)
-	    {	case 'j':
-		        menu_driver(my_menu, REQ_DOWN_ITEM);
+    std::vector<feed> myFeeds = readFeeds();
+    loadFeedMenu(myFeeds);
+
+    refresh();
+}
+
+int main() {
+	initialSetup();
+
+	int c;
+
+    // IMPLEMENT LOADING FEED ON MENU CHANGE
+
+	while((c = getch()) != 'q') {
+        switch(c) {
+            case 'j':
+		        menu_driver(feedMenu, REQ_DOWN_ITEM);
 				break;
 			case 'k':
-				menu_driver(my_menu, REQ_UP_ITEM);
+				menu_driver(feedMenu, REQ_UP_ITEM);
 				break;
 		}
-	}	
+	}
     
     cleanUp();
-	endwin();
+
+    return 0;
 }
