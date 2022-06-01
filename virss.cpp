@@ -18,6 +18,7 @@ ITEM** articleItems;
 int feedChoices, articleChoices;
 
 std::vector<feed> myFeeds;
+feed currentFeed;
 
 void loadFeedMenu() {
     feedChoices = myFeeds.size();
@@ -42,15 +43,15 @@ void loadFeedMenu() {
     wrefresh(feedWindow);
 }
 
-void loadArticleMenu(feed mFeed) {
+void loadArticleMenu() {
     wclear(articleWindow);
     box(articleWindow, 0, 0);
 
-    articleChoices = mFeed.articles.size();
+    articleChoices = currentFeed.articles.size();
     articleItems = (ITEM**)calloc(articleChoices + 1, sizeof(ITEM *));                  
 
     for(int i = 0; i < articleChoices; i++) {
-        char* temp = const_cast<char*>(mFeed.articles.at(i).title.c_str());
+        char* temp = const_cast<char*>(currentFeed.articles.at(i).title.c_str());
         articleItems[i] = new_item(temp, "");
     }
 
@@ -108,8 +109,9 @@ void initialSetup() {
     wrefresh(articleWindow);
 
     myFeeds = readFeeds();
+    currentFeed = myFeeds.at(0);
     loadFeedMenu();
-    loadArticleMenu(myFeeds.at(0));
+    loadArticleMenu();
 }
 
 int main() {
@@ -149,7 +151,8 @@ int main() {
         if(reloadFeedWin) {
             ITEM* cur = current_item(feedMenu);
             feed* p = (feed*)item_userptr(cur);
-            loadArticleMenu(*p);
+            currentFeed = *p;
+            loadArticleMenu();
 
             wrefresh(feedWindow);
         } else {
