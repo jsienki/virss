@@ -39,7 +39,8 @@ void loadFeedMenu() {
                                                                              
     feedMenu = new_menu((ITEM**) feedItems);
     set_menu_win(feedMenu, feedWindow);
-    set_menu_sub(feedMenu, derwin(feedWindow, 0, 0, 1, 1));
+    set_menu_sub(feedMenu, derwin(feedWindow, (LINES - 6), ((COLS / 2) - 2), 1, 1));
+    set_menu_format(feedMenu, (LINES -6), 1);
     set_menu_mark(feedMenu, "");
     post_menu(feedMenu);
 
@@ -63,7 +64,8 @@ void loadArticleMenu() {
 
     articleMenu = new_menu((ITEM**) articleItems);
     set_menu_win(articleMenu, articleWindow);
-    set_menu_sub(articleMenu, derwin(articleWindow, 0, 0, 1, 1));
+    set_menu_sub(articleMenu, derwin(articleWindow, (LINES-6), ((COLS/2) - 2), 1, 1));
+    set_menu_format(articleMenu, (LINES -6), 1);
     set_menu_mark(articleMenu, "");
     post_menu(articleMenu);
 
