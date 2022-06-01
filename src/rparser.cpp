@@ -33,9 +33,9 @@ std::vector<feed> readFeeds() {
 
 feed newFeed(std::string url) {
     feed output;
-    output.title = "TEST_TITLE HELLO";
-    output.subtitle = "TEST_DESC abcsd";
-    output.category = "TEST_CATEGORY news";
+    output.title = "Default Title";
+    output.subtitle = "Default Subtitle";
+    output.category = "Default Category";
     
     CURL* curl;
     FILE* fp;
@@ -43,7 +43,7 @@ feed newFeed(std::string url) {
     char outfilename[255] = "feed.xml";
     curl = curl_easy_init();
 
-    if (curl) {
+    if(curl) {
         fp = fopen(outfilename,"wb");
         curl_easy_setopt(curl, CURLOPT_URL, const_cast<char*>(url.c_str()));
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
@@ -58,29 +58,50 @@ feed newFeed(std::string url) {
     doc.LoadFile(outfilename);
     tinyxml2::XMLElement* pRootElement = doc.RootElement();
 
-    if (pRootElement != NULL) {
+    if(pRootElement != NULL) {
         tinyxml2::XMLElement* pChannel = pRootElement -> FirstChildElement("channel");
 
-        if (pChannel != NULL) {
+        if(pChannel != NULL) {
             tinyxml2::XMLElement* pItem = pChannel -> FirstChildElement("item");
 
             tinyxml2::XMLElement* pFeedTitle = pChannel -> FirstChildElement("title");
 
-            if (pFeedTitle != NULL) {
+            if(pFeedTitle != NULL) {
                 output.title = pFeedTitle -> GetText();
             }
 
             while(pItem) {
                 rssObject newItem;
-                newItem.link = "TEST_LINK google.com";
-                newItem.desc = "TEST_DESC abc";
-                newItem.pubdate = "TEST_DATE 23-10-2022 13:00";
                 newItem.guid = "TEST_GUID 213940";
 
                 tinyxml2::XMLElement* pTitle = pItem -> FirstChildElement("title");
 
-                if (pTitle != NULL) {
+                if(pTitle != NULL) {
                     newItem.title = pTitle -> GetText();
+                }
+
+                tinyxml2::XMLElement* pLink = pItem -> FirstChildElement("link");
+
+                if(pLink != NULL) {
+                    newItem.link = pLink -> GetText();
+                }
+
+                tinyxml2::XMLElement* pDesc = pItem -> FirstChildElement("description");
+
+                if(pDesc != NULL) {
+                    newItem.desc = pDesc -> GetText();
+                }
+
+                tinyxml2::XMLElement* pDate = pItem -> FirstChildElement("pubDate");
+
+                if(pDate != NULL) {
+                    newItem.desc = pDate -> GetText();
+                }
+
+                tinyxml2::XMLElement* pGuid = pItem -> FirstChildElement("guid");
+
+                if(pGuid != NULL) {
+                    newItem.desc = pGuid -> GetText();
                 }
 
                 output.articles.push_back(newItem);
