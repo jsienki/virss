@@ -4,6 +4,8 @@
 #include <sqlite3.h>
 #include <ncurses.h>
 #include <menu.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "rparser.h"
 #include "cparser.h"
@@ -19,6 +21,7 @@ int feedChoices, articleChoices;
 
 std::vector<feed> myFeeds;
 feed currentFeed;
+rssObject currentObject;
 
 void loadFeedMenu() {
     feedChoices = myFeeds.size();
@@ -53,6 +56,7 @@ void loadArticleMenu() {
     for(int i = 0; i < articleChoices; i++) {
         char* temp = const_cast<char*>(currentFeed.articles.at(i).title.c_str());
         articleItems[i] = new_item(temp, "");
+        set_item_userptr(articleItems[i], &currentFeed.articles.at(i));
     }
 
     articleItems[articleChoices] = (ITEM*) NULL;
@@ -122,6 +126,7 @@ int main() {
 
 	while((c = getch()) != 'q') {
         bool reloadFeedWin = false;
+        bool openUrl = false;
 
         switch(c) {
             case 'j':
@@ -146,6 +151,9 @@ int main() {
             case 'l':
                 curWin = false;
                 break;
+            case 'o':
+                openUrl = true;
+                break;
 		}
 
         if(reloadFeedWin) {
@@ -157,6 +165,20 @@ int main() {
             wrefresh(feedWindow);
         } else {
             wrefresh(articleWindow);
+
+            if(openUrl) {
+                ITEM* cur = current_item(articleMenu);
+                rssObject* p = (rssObject*)item_userptr(cur);
+                currentObject = *p;
+                
+                std::string run;
+                std::string browser = "xdg-open ";
+                run += browser;
+                run += p -> link;
+                run += " </dev/null &>/dev/null &";
+                char* temp = const_cast<char*>(run.c_str());
+                system(temp);
+            }
         }
 	}
     
