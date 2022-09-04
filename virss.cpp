@@ -174,7 +174,8 @@ int main() {
                 currentObject = *p;
                 
                 std::string run;
-                std::string browser = "xdg-open ";
+                //std::string browser = "xdg-open ";
+                std::string browser = "open ";
                 run += browser;
                 run += p -> link;
                 run += " </dev/null &>/dev/null &";
