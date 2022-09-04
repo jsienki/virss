@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
-#include <sqlite3.h>
 #include <ncurses.h>
 #include <menu.h>
 #include <cstdio>
